@@ -70,8 +70,9 @@ function! s:handle_location(ctx, server, type, data) abort "ctx = {counter, list
 
             let l:loc = a:ctx['list']
 
-            let g:denite#source#vim_lsp#_results = l:loc
             let g:denite#source#vim_lsp#_request_completed = v:true
+            let g:denite#source#vim_lsp#_results = l:loc
+            return l:loc
         endif
     endif
 endfunction
@@ -118,6 +119,12 @@ function! denite_vim_lsp#workspace_symbol() abort
     endfor
 endfunction
 
+function! denite_vim_lsp#definition() abort
+    let s:last_req_id = s:last_req_id + 1
+    let l:ctx = { 'in_preview': 0, 'jump_if_one':0 }
+    call s:list_location('definition', l:ctx)
+endfunction
+
 function! denite_vim_lsp#references() abort
     let s:last_req_id = s:last_req_id + 1
     let l:ctx = { 'jump_if_one': 0 }
@@ -154,6 +161,4 @@ function! s:list_location(method, ctx, ...) abort
             \ 'on_notification': function('s:handle_location', [l:ctx, l:server, l:operation]),
             \ })
     endfor
-
-    echo printf('Retrieving %s ...', l:operation)
 endfunction
